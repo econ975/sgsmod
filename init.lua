@@ -3,7 +3,7 @@ local extension = Package("fk_study")
 Fk:loadTranslationTable{
 	["fk_study"] = "fk学习包",
 	["study_sunce"] = "孙伯符",
-	["study_jizi"] = "激姿"，
+	["study_jizi"] = "激姿",
 	[":study_jizi"] = "摸牌阶段，你可以多摸4张牌。",
 }
 
