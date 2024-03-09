@@ -5,8 +5,6 @@ Fk:loadTranslationTable{
 	["study_sunce"] = "孙伯符",
 	["study_jizi"] = "激姿",
 	[":study_jizi"] = "摸牌阶段，你可以多摸4张牌。",
-	["study_test"] = "测试",
-	["study_testskill"] = "测试技能",
 	[":study_testskill"] = "摸牌阶段，你可以多摸2张牌。",
 	["study_testskill1"] = "测试技能1",
 	[":study_testskill1"] = "摸牌阶段，你可以多摸2张牌。",
@@ -34,16 +32,44 @@ local study_jizi = fk.CreateTriggerSkill{
 }
 study_sunce:addSkill(study_jizi)
 
-local study_test = General(extension, "study_test", "wei", 4)
-local study_testskill = fk.CreateTriggerSkill{
-	name = "study_testskill",
-	anim_type = "drawcard",
-	events = {fk.DrawNCards},
-	on_use = function(self, event, target, player, data)
-		data.n = data.n + 2
-	end,
+Fk:loadTranslationTable{
+	["study_miku"] = "初音未来",
+	["study_furikaeru"] = "振り返る",
+	[":study_furikaeru"] = "准备阶段开始时，你可对一名其他角色造成2点伤害。",
+  	["#study_furikaeru-choose"] = "振り返る：你可对一名其他角色造成2点伤害",
 }
-study_test:addSkill(study_testskill)
+local study_miku = General(extension, "study_miku", "wei", 3)
+local study_furikaeru = fk.CreateTriggerSkill{
+	name = "study_furikaeru",
+	anim_type = "offensive",
+	events = {fk.EventPhaseStart},
+	can_trigger = function(self, event, target, player, data)
+		return target == player and player:hasSkill(self) and
+		  player.phase == Player.Start
+	  end,
+	on_cost = function(self, event, target, player, data)
+		local room = player.room
+		local to = room:askForChoosePlayers(player, table.map(table.filter(room:getOtherPlayers(player), function(p)
+			return 1 end), Util.IdMapper), 1, 1, "#study_furikaeru-choose", self.name, true)
+		if #to > 0 then
+		  self.cost_data = to[1]
+		  return true
+		end
+	  end,
+	on_use = function(self, event, target, player, data)
+		local room = player.room
+    	room:damage({
+      	from = player,
+      	to = room:getPlayerById(self.cost_data),
+      	damage = 2,
+      	skillName = self.name,
+    	})
+	end,
+	
+}
+study_miku:addSkill(study_furikaeru)
+
+
 
 
 
